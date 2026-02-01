@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Sand My Desktop</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  </head>
+  <body>
+
+    <header>
+      <div class="title">Sand My Desktop</div>
+      <div class="controls">
+        <button id="mode-spawn" class="active">Spawn</button>
+        <button id="mode-delete">Delete</button>
+        <input type="range" id="size-slider" min="1" max="10" value="1">
+        <div id="palette"></div>
+      </div>
+    </header>
+
+    <main>
+      <canvas id="sand"></canvas>
+    </main>
+
+    <script src="/static/sand.js"></script>
+  </body>
+</html>
+
