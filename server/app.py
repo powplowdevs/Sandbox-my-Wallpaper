@@ -5,8 +5,8 @@ import numpy as np
 
 WIDTH = 480
 HEIGHT = 270
-TICK_RATE = 60
-SNAPSHOT_RATE = 75
+TICK_RATE = 30
+SNAPSHOT_RATE = 30
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")

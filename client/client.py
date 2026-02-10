@@ -9,7 +9,7 @@ pygame.init()
 # Sand SIM vars
 WIDTH = 480
 HEIGHT = 270
-TICK_RATE = 120
+TICK_RATE = 30
 grid = np.zeros((HEIGHT, WIDTH), dtype=np.uint8)
 clock = pygame.time.Clock()
 lastTime = time.time()
@@ -36,7 +36,7 @@ LWA_COLORKEY = 0x1
 
 # SocketIO
 socket = socketio.Client()
-socket.connect('http://127.0.0.1:5000')
+socket.connect('https://sandbox-my-desktop.onrender.com')
 
 
 # Set up fullscreen transparent window
