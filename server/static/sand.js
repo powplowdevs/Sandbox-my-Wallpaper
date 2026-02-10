@@ -1,4 +1,4 @@
-const socket = io("");
+const socket = io();
 
 const WIDTH = 480;
 const HEIGHT = 270;
