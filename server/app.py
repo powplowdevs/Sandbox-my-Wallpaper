@@ -94,8 +94,17 @@ def serverLoop():
         socketio.sleep(max(0, dt - (time.time() - start)))
 
 
-socketio.start_background_task(serverLoop)
+backgroundThread = None
+threadLock = threading.Lock()
+
+@socketio.on('connect')
+def handle_connect():
+    global backgroundThread
+    with threadLock:
+        if backgroundThread is None:
+            backgroundThread = socketio.start_background_task(serverLoop)
+    
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host='0.0.0.0', port=port)
-
+    socketio.run(app, host="0.0.0.0", port=port, debug=True)
