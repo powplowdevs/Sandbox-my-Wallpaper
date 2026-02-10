@@ -65,43 +65,10 @@ def applyBrush(evt):
 def index():
     return render_template("index.html")
 
-# @app.route("/events", methods=["GET"])
-# def get_events():
-#     since_tick = request.args.get("since_tick", type=int)
-
-#     if since_tick is None:
-#         return jsonify({"error": "since_tick is required"}), 400
-
-#     events = []
-
-#     with open(EVENTS_PATH, "r", encoding="utf-8") as f:
-#         for line in f:
-#             event = json.loads(line)
-#             if event["tick"] > since_tick:
-#                 events.append(event)
-
-#     return jsonify(events)
-
-# WebSocket routes
-# @app.route("/event", methods=["POST"])
-# def event():
-#     with lock:
-#         action_queue.append(request.json)
-#     return jsonify(ok=True)
-
-
-# @app.route("/snapshot")
-# def snapshot():
-#     with lock:
-#         return jsonify(latest_snapshot)
-
-
 @socketio.on("event")
 def event(event):
     with lock:
         action_queue.append(event)
-
-
 
 def serverLoop():
     global tick
@@ -122,17 +89,12 @@ def serverLoop():
             tick += 1
 
             if tick % emit_every == 0:
-                # bytes(grid) is fast and produces a compact binary frame
                 socketio.emit("snapshot", bytes(grid), to=None)
-
-            # latest_snapshot = {
-            #     "tick": tick,
-            #     "grid": grid[:]  # copy
-            # }
 
         socketio.sleep(max(0, dt - (time.time() - start)))
 
 
 socketio.start_background_task(serverLoop)
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    socketio.run(app, host='0.0.0.0', port=port)
