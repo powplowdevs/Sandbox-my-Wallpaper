@@ -1,5 +1,6 @@
 [build]
-builder = "NIXPACKS"
+workDir = "server"
 
 [deploy]
-startCommand = "cd server && gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT app:app"
+workDir = "server"
+startCommand = "gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT app:app"
