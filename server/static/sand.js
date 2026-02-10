@@ -7,10 +7,35 @@ const SCALE = 4;
 const canvas = document.getElementById("sand");
 canvas.width = WIDTH;
 canvas.height = HEIGHT;
-canvas.style.width = WIDTH * SCALE + "px";
-canvas.style.height = HEIGHT * SCALE + "px";
+// canvas.style.width = WIDTH * SCALE + "px";
+// canvas.style.height = HEIGHT * SCALE + "px";
+
+function resizeCanvas() {
+    const wrapper = canvas.parentElement; // canvas-wrapper
+    const wrapperWidth = wrapper.clientWidth;
+    const wrapperHeight = wrapper.clientHeight;
+
+    if (wrapperWidth === 0 || wrapperHeight === 0) {
+        requestAnimationFrame(resizeCanvas);
+        return;
+    }
+
+    const scaleX = wrapperWidth / WIDTH;
+    const scaleY = wrapperHeight / HEIGHT;
+
+    // Keep aspect ratio
+    const scale = Math.min(scaleX, scaleY);
+
+    canvas.style.width = WIDTH * scale + "px";
+    canvas.style.height = HEIGHT * scale + "px";
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
 
 const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
 const grid = new Uint8Array(WIDTH * HEIGHT);
 
 const COLORS = {
@@ -41,20 +66,19 @@ for (const c in COLORS) {
     palette.appendChild(b); 
 }
 
+// spawn and delte button
+document.getElementById("mode-spawn").onclick = () => mode = "spawn";
+document.getElementById("mode-delete").onclick = () => mode = "delete";
+
 const idx = (x, y) => y * WIDTH + x;
 
 
 function sendEvent(evt) {
-    // fetch("/event", {
-    //     method: "POST",
-    //     headers: {"Content-Type": "application/json"},
-    //     body: JSON.stringify(evt)
-    // });
     socket.emit("event", evt);
 }
 
 
-// LOCAL PREDICTION (instant feel)
+// LOCAL PREDICTION
 function applyBrushLocal(x, y, r, mode, color) {
     for (let cy = -r; cy <= r; cy++) {
         for (let cx = -r; cx <= r; cx++) {
@@ -73,8 +97,8 @@ canvas.addEventListener("mousemove", e => {
     if (!(e.buttons & 1)) return;
 
     const r = canvas.getBoundingClientRect();
-    const x = Math.floor((e.clientX - r.left) / SCALE);
-    const y = Math.floor((e.clientY - r.top) / SCALE);
+    const x = Math.floor((e.clientX - r.left) * WIDTH / r.width);
+    const y = Math.floor((e.clientY - r.top) * HEIGHT / r.height);
     if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
 
     applyBrushLocal(x, y, radius, mode, currentColor);
@@ -88,14 +112,12 @@ canvas.addEventListener("mousemove", e => {
 });
 
 
-async function syncFromServer() {
-    // const res = await fetch("/snapshot");
-    // const data = await res.json();
-    // if (!data || !data.grid) return;
+socket.on("snapshot", msg => {
+    const byteArray = new Uint8Array(msg);
+    grid.set(byteArray);
+});
 
-    // for (let i = 0; i < grid.length; i++) {
-    //     grid[i] = data.grid[i];
-    // }
+async function syncFromServer() {
     socket.once("snapshot", msg => {
         const byteArray = new Uint8Array(msg);
         grid.set(byteArray);
@@ -126,7 +148,6 @@ function draw() {
 
 
 function loop(t) {
-    syncFromServer();
     draw();
     requestAnimationFrame(loop);
 }

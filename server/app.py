@@ -6,19 +6,15 @@ import numpy as np
 WIDTH = 480
 HEIGHT = 270
 TICK_RATE = 60
+SNAPSHOT_RATE = 75
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
-grid = [0] * (WIDTH * HEIGHT)
+grid = bytearray(WIDTH * HEIGHT)
 tick = 0
 action_queue = []
 lock = threading.Lock()
-
-CONFIG_PATH = os.path.join(os.path.dirname(__file__), "data", "config.json")
-EVENTS_PATH = os.path.join(os.path.dirname(__file__), "data", "events.jsonl")
-with open(CONFIG_PATH, "r") as f:
-    config = json.load(f)
 
 
 # Sand simulation functions
@@ -69,22 +65,22 @@ def applyBrush(evt):
 def index():
     return render_template("index.html")
 
-@app.route("/events", methods=["GET"])
-def get_events():
-    since_tick = request.args.get("since_tick", type=int)
+# @app.route("/events", methods=["GET"])
+# def get_events():
+#     since_tick = request.args.get("since_tick", type=int)
 
-    if since_tick is None:
-        return jsonify({"error": "since_tick is required"}), 400
+#     if since_tick is None:
+#         return jsonify({"error": "since_tick is required"}), 400
 
-    events = []
+#     events = []
 
-    with open(EVENTS_PATH, "r", encoding="utf-8") as f:
-        for line in f:
-            event = json.loads(line)
-            if event["tick"] > since_tick:
-                events.append(event)
+#     with open(EVENTS_PATH, "r", encoding="utf-8") as f:
+#         for line in f:
+#             event = json.loads(line)
+#             if event["tick"] > since_tick:
+#                 events.append(event)
 
-    return jsonify(events)
+#     return jsonify(events)
 
 # WebSocket routes
 # @app.route("/event", methods=["POST"])
@@ -111,6 +107,8 @@ def serverLoop():
     global tick
 
     dt = 1 / TICK_RATE
+    emit_every = max(1, TICK_RATE // SNAPSHOT_RATE)
+
     while True:
         start = time.time()
 
@@ -118,26 +116,23 @@ def serverLoop():
             for evt in action_queue:
                 evt["tick"] = tick
                 applyBrush(evt)
-                with open(EVENTS_PATH, "a") as f:
-                    f.write(json.dumps(evt) + "\n")
             action_queue.clear()
 
             step(grid)
             tick += 1
 
-            arr = np.array(grid, dtype=np.uint8)
-            data = arr.flatten().tobytes()
-            socketio.emit("snapshot", data, to=None)
+            if tick % emit_every == 0:
+                # bytes(grid) is fast and produces a compact binary frame
+                socketio.emit("snapshot", bytes(grid), to=None)
 
             # latest_snapshot = {
             #     "tick": tick,
             #     "grid": grid[:]  # copy
             # }
 
-        time.sleep(max(0, dt - (time.time() - start)))
+        socketio.sleep(max(0, dt - (time.time() - start)))
 
 
-threading.Thread(target=serverLoop, daemon=True).start()
-
+socketio.start_background_task(serverLoop)
 if __name__ == "__main__":
-    app.run(threaded=True)
+    socketio.run(app, host="0.0.0.0", port=5000)

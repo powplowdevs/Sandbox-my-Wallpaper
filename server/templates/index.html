@@ -1,29 +1,123 @@
 <!DOCTYPE html>
-
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Sand My Desktop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sand My Desktop - Interactive Sand Simulation</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   </head>
   <body>
-
-    <header>
-      <div class="title">Sand My Desktop</div>
-      <div class="controls">
-        <button id="mode-spawn" class="active">Spawn</button>
-        <button id="mode-delete">Delete</button>
-        <input type="range" id="size-slider" min="1" max="10" value="1">
-        <div id="palette"></div>
+    <!-- Landing Page -->
+    <section id="landing-page" class="landing">
+      <div class="sand-particles"></div>
+      <div class="landing-content">
+        <div class="logo-container">
+          <h1 class="glitch" data-text="SAND MY DESKTOP">SAND MY DESKTOP</h1>
+        </div>
+        <p class="tagline">Play with sand that shows live on my desktop</p>
+        
+        <button id="start-button" class="pixel-button">
+          <span>BEGIN</span>
+          <div class="button-shine"></div>
+        </button>
+        <div class="creator-links">
+          <a href="https://github.com/powplowdevs" target="_blank" class="social-link github-link">
+            <i class="fab fa-github" style="font-size:24px; color:gray;"></i>
+            <span>GitHub</span>
+          </a>
+          <a href="https://powplowdevs.github.io/sleekPortfolio/" target="_blank" class="social-link portfolio-link">
+            <i class="fa fa-briefcase" style="font-size:24px; color:gray;"></i>
+            <span>Portfolio</span>
+          </a>
+        </div>
       </div>
-    </header>
+    </section>
 
-    <main>
-      <canvas id="sand"></canvas>
-    </main>
+    <!-- Canvas App -->
+    <section id="canvas-app" class="canvas-section" style="display: none;">
+      <header class="app-header">
+        <div class="header-left">
+          <div class="app-title">
+            <span>Sand My Desktop</span>
+          </div>
+        </div>
+        <div class="controls">
+          <div class="control-group mode-controls">
+            <button id="mode-spawn" class="control-btn active" data-mode="spawn">
+              <svg viewBox="0 0 24 24" width="18" height="18">
+                <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+              </svg>
+              <span>Spawn</span>
+            </button>
+            <button id="mode-delete" class="control-btn" data-mode="delete">
+              <svg viewBox="0 0 24 24" width="18" height="18">
+                <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              </svg>
+              <span>Delete</span>
+            </button>
+          </div>
+          <div class="control-group brush-size">
+            <label for="size-slider">
+              <svg viewBox="0 0 24 24" width="16" height="16">
+                <circle fill="currentColor" cx="12" cy="12" r="3"/>
+              </svg>
+              Size
+            </label>
+            <input type="range" id="size-slider" min="1" max="10" value="1">
+            <span id="size-value">1</span>
+          </div>
+          <div class="control-group color-controls">
+            <label>Colors</label>
+            <div id="palette"></div>
+          </div>
+        </div>
+        <div class="header-right">
+          <button id="back-button" class="icon-btn" title="Back to Home">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+      <main class="canvas-container">
+        <div class="desktop-preview">
+          <div class="preview-frame">
+            <div class="preview-header">
+              <div class="window-dots">
+                <span></span><span></span><span></span>
+              </div>
+              <span class="preview-label">Desktop Preview</span>
+            </div>
+            <div class="canvas-wrapper">
+              <div class="background-placeholder">
+                <img src="https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&h=1080&fit=crop" alt="Desktop Background" id="desktop-bg">
+              </div>
+              <canvas id="sand"></canvas>
+            </div>
+          </div>
+        </div>
+      </main>
+      <footer class="app-footer">
+        <div class="footer-content">
+          <div class="status-info">
+            <span class="status-dot"></span>
+            <span>Live Simulation Active</span>
+          </div>
+          <div class="footer-links">
+            <a href="https://github.com/powplowdevs" target="_blank">
+              <i class="fab fa-github" style="font-size:12px; color:gray;"></i>
+            </a>
+            <a href="https://powplowdevs.github.io/sleekPortfolio/" target="_blank">
+              <i class="fa fa-briefcase" style="font-size:12px; color:gray;"></i>
+            </a>
+          </div>
+        </div>
+      </footer>
+    </section>
 
     <script src="/static/sand.js"></script>
+    <script src="/static/ui.js"></script>
   </body>
 </html>
-
