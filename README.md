@@ -17,7 +17,6 @@ The frontend is a clean sandbox interface for placing and erasing particles, whi
 ## Demo  
 ![Live Demo](demo.gif)
 
----
 
 ## Check it out
 http://sandboxmydesktop.tech/
