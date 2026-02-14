@@ -3,9 +3,9 @@
 </p>
 
 
-<p align="center">
+<!-- <p align="center">
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&duration=3000&pause=1000&color=F4C430&center=true&vCenter=true&width=600&lines=Draw+in+your+browser;Watch+it+appear+on+my+desktop;Live+sandbox+simulation;" alt="Typing SVG" />
-</p>
+</p> -->
 
 ---
 
