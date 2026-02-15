@@ -36,7 +36,7 @@ LWA_COLORKEY = 0x1
 
 # SocketIO
 socket = socketio.Client()
-socket.connect('https://sandbox-my-desktop.onrender.com')
+socket.connect('http://sandboxmydesktop.tech')
 
 
 # Set up fullscreen transparent window
