@@ -73,20 +73,32 @@ document.getElementById("mode-delete").onclick = () => mode = "delete";
 const idx = (x, y) => y * WIDTH + x;
 
 
+const SEND_INTERVAL = 1000 / 30;
+let lastSend = 0;
 function sendEvent(evt) {
+    const now = performance.now();
+    if (now - lastSend < SEND_INTERVAL) return false;
+    lastSend = now;
     socket.emit("event", evt);
+    return true;
 }
+
+const SPAWN_DENSITY = 0.55;
+const BRUSH_JITTER = 1;
+const jitter = () => Math.floor(Math.random() * (2 * BRUSH_JITTER + 1)) - BRUSH_JITTER;
 
 
 // LOCAL PREDICTION
 function applyBrushLocal(x, y, r, mode, color) {
+    x += jitter();
+    y += jitter();
     for (let cy = -r; cy <= r; cy++) {
         for (let cx = -r; cx <= r; cx++) {
             if (cx*cx + cy*cy > r*r) continue;
             const px = x + cx, py = y + cy;
             if (px < 0 || py < 0 || px >= WIDTH || py >= HEIGHT) continue;
             const i = idx(px, py);
-            if (mode === "spawn" && grid[i] === 0) grid[i] = color;
+            if (mode === "spawn" && grid[i] === 0 && Math.random() < SPAWN_DENSITY) grid[i] = color;
             if (mode === "delete") grid[i] = 0;
         }
     }
@@ -101,14 +113,13 @@ canvas.addEventListener("mousemove", e => {
     const y = Math.floor((e.clientY - r.top) * HEIGHT / r.height);
     if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
 
-    applyBrushLocal(x, y, radius, mode, currentColor);
-
-    sendEvent({
+    const sent = sendEvent({
         action: mode === "spawn" ? 1 : 2,
         x, y,
         radius,
         color: currentColor
     });
+    if (sent) applyBrushLocal(x, y, radius, mode, currentColor);
 });
 
 
